@@ -1,0 +1,67 @@
+# Render Blueprint for Chess4Nerds
+# Creates: a Postgres database, the API server (apps/backend) and the
+# WebSocket game server (apps/ws). The frontend is deployed separately on Vercel.
+
+databases:
+  - name: chess4nerds-db
+    plan: free
+    databaseName: chess4nerds
+    user: chess4nerds
+
+envVarGroups:
+  # Both servers must share the same JWT secret.
+  - name: chess4nerds-shared
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+
+services:
+  - type: web
+    name: chess4nerds-backend
+    runtime: node
+    plan: free
+    buildCommand: >-
+      npm install --include=dev --no-audit --no-fund &&
+      cd packages/db && npx prisma generate && npx prisma migrate deploy &&
+      cd ../../apps/backend && npm run build
+    startCommand: cd apps/backend && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chess4nerds-db
+          property: connectionString
+      - fromGroup: chess4nerds-shared
+      - key: COOKIE_SECRET
+        generateValue: true
+      # Set these to the Vercel frontend URL after it is deployed.
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:5173
+      - key: AUTH_REDIRECT_URL
+        value: http://localhost:5173
+
+  - type: web
+    name: chess4nerds-ws
+    runtime: node
+    plan: free
+    buildCommand: >-
+      npm install --include=dev --no-audit --no-fund &&
+      cd packages/db && npx prisma generate &&
+      cd ../../apps/ws && npm run build
+    startCommand: cd apps/ws && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: WS_PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chess4nerds-db
+          property: connectionString
+      - fromGroup: chess4nerds-shared
