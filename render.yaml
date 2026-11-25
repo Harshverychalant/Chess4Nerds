@@ -38,11 +38,11 @@ services:
       - fromGroup: chess4nerds-shared
       - key: COOKIE_SECRET
         generateValue: true
-      # Set these to the Vercel frontend URL after it is deployed.
+      # The Vercel frontend URL.
       - key: ALLOWED_ORIGINS
-        value: http://localhost:5173
+        value: https://chess4-nerds.vercel.app
       - key: AUTH_REDIRECT_URL
-        value: http://localhost:5173
+        value: https://chess4-nerds.vercel.app
 
   - type: web
     name: chess4nerds-ws
