@@ -243,4 +243,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Author
 
-**Subhankar Satpathy** — [@suwubh](https://github.com/suwubh)
+**Harshverychalant** — [@Harshverychalant](https://github.com/Harshverychalant)
